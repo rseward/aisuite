@@ -6,7 +6,8 @@ import anthropic
 import json
 from aisuite.provider import Provider
 from aisuite.framework import ChatCompletionResponse
-from aisuite.framework.message import Message, ChatCompletionMessageToolCall, Function
+from aisuite.framework.message import (Message, ChatCompletionMessageToolCall, Function, CompletionUsage,
+                                    PromptTokensDetails)
 
 # Define a constant for the default max_tokens value
 DEFAULT_MAX_TOKENS = 4096
@@ -36,7 +37,7 @@ class AnthropicMessageConverter:
         """Normalize the response from the Anthropic API to match OpenAI's response format."""
         normalized_response = ChatCompletionResponse()
         normalized_response.choices[0].finish_reason = self._get_finish_reason(response)
-        normalized_response.usage = self._get_usage_stats(response)
+        normalized_response.usage = self._get_completion_usage(response)
         normalized_response.choices[0].message = self._get_message(response)
         return normalized_response
 
@@ -121,13 +122,16 @@ class AnthropicMessageConverter:
         """Get the normalized finish reason."""
         return self.FINISH_REASON_MAPPING.get(response.stop_reason, "stop")
 
-    def _get_usage_stats(self, response):
+    def _get_completion_usage(self, response):
         """Get the usage statistics."""
-        return {
-            "prompt_tokens": response.usage.input_tokens,
-            "completion_tokens": response.usage.output_tokens,
-            "total_tokens": response.usage.input_tokens + response.usage.output_tokens,
-        }
+        return CompletionUsage(
+            completion_tokens=response.usage.output_tokens,
+            prompt_tokens=response.usage.input_tokens,
+            total_tokens=response.usage.input_tokens + response.usage.output_tokens,
+            prompt_tokens_details=PromptTokensDetails(
+                cached_tokens=response.usage.cache_read_input_tokens,
+            ),
+        )
 
     def _get_message(self, response):
         """Get the appropriate message based on response type."""
