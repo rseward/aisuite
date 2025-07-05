@@ -68,10 +68,9 @@ class TestAnthropicMessageConverter(unittest.TestCase):
 
         self.assertIsInstance(normalized_response, ChatCompletionResponse)
         self.assertEqual(normalized_response.choices[0].finish_reason, "stop")
-        self.assertEqual(
-            normalized_response.usage,
-            {"prompt_tokens": 10, "completion_tokens": 5, "total_tokens": 15},
-        )
+        self.assertEqual(normalized_response.usage.prompt_tokens, 10)
+        self.assertEqual(normalized_response.usage.completion_tokens, 5)
+        self.assertEqual(normalized_response.usage.total_tokens, 15)
         self.assertEqual(
             normalized_response.choices[0].message.content, "The weather is sunny."
         )
@@ -101,10 +100,9 @@ class TestAnthropicMessageConverter(unittest.TestCase):
 
         self.assertIsInstance(normalized_response, ChatCompletionResponse)
         self.assertEqual(normalized_response.choices[0].finish_reason, "tool_calls")
-        self.assertEqual(
-            normalized_response.usage,
-            {"prompt_tokens": 20, "completion_tokens": 10, "total_tokens": 30},
-        )
+        self.assertEqual(normalized_response.usage.prompt_tokens, 20)
+        self.assertEqual(normalized_response.usage.completion_tokens, 10)
+        self.assertEqual(normalized_response.usage.total_tokens, 30)
         self.assertEqual(
             normalized_response.choices[0].message.content,
             "<thinking>I need to call the get_weather function</thinking>",
