@@ -1,5 +1,7 @@
-import pytest
+"""Tests for the Deepseek provider."""
+
 from unittest.mock import MagicMock, patch
+import pytest
 
 from aisuite.providers.deepseek_provider import DeepseekProvider
 from aisuite.framework.chat_completion_response import ChatCompletionResponse
@@ -12,7 +14,7 @@ def set_api_key_env_var(monkeypatch):
 
 
 def test_deepseek_provider():
-    """High-level test that the provider is initialized and chat completions are requested successfully."""
+    """Test that the provider is initialized and chat completions are requested."""
 
     user_greeting = "Hello!"
     message_history = [{"role": "user", "content": user_greeting}]
@@ -24,10 +26,12 @@ def test_deepseek_provider():
     mock_response = MagicMock()
     # The mock response from the client is an object, so we mock the .model_dump() method
     mock_response.model_dump.return_value = {
-        "choices": [{"message": {"content": response_text_content, "role": "assistant"}}],
+        "choices": [
+            {"message": {"content": response_text_content, "role": "assistant"}}
+        ],
         "model": selected_model,
         "created": 12345,
-        "id": "chatcmpl-mockid"
+        "id": "chatcmpl-mockid",
         # No usage data in this test
     }
 
@@ -63,7 +67,9 @@ def test_deepseek_provider_with_usage():
     provider = DeepseekProvider()
     mock_response = MagicMock()
     mock_response.model_dump.return_value = {
-        "choices": [{"message": {"content": response_text_content, "role": "assistant"}}],
+        "choices": [
+            {"message": {"content": response_text_content, "role": "assistant"}}
+        ],
         "model": selected_model,
         "created": 12345,
         "id": "chatcmpl-mockid",

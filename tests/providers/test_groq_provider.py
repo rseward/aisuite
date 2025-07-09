@@ -1,3 +1,5 @@
+"""Tests for the Groq provider."""
+
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -12,7 +14,7 @@ def set_api_key_env_var(monkeypatch):
 
 
 def test_groq_provider():
-    """High-level test that the provider is initialized and chat completions are requested successfully."""
+    """Test that the provider is initialized and chat completions are requested."""
 
     user_greeting = "Hello!"
     message_history = [{"role": "user", "content": user_greeting}]
@@ -72,7 +74,7 @@ def test_groq_provider_with_usage():
         provider.client.chat.completions,
         "create",
         return_value=mock_response,
-    ) as mock_create:
+    ):
         response = provider.chat_completions_create(
             messages=message_history,
             model=selected_model,

@@ -1,24 +1,31 @@
+"""AWS Bedrock provider for the aisuite."""
+
 import os
 import json
 from typing import List, Dict, Any, Tuple, Optional
 
 import boto3
+import botocore
+
 from aisuite.provider import Provider, LLMError
 from aisuite.framework import ChatCompletionResponse
 from aisuite.framework.message import Message, CompletionUsage
-from aisuite.utils import utils
-import botocore
 
 
+# pylint: disable=too-few-public-methods
 class BedrockConfig:
+    """Configuration for the AWS Bedrock provider."""
+
     INFERENCE_PARAMETERS = ["maxTokens", "temperature", "topP", "stopSequences"]
 
     def __init__(self, **config):
+        """Initialize the BedrockConfig."""
         self.region_name = config.get(
             "region_name", os.getenv("AWS_REGION", "us-west-2")
         )
 
     def create_client(self):
+        """Create a Bedrock runtime client."""
         return boto3.client("bedrock-runtime", region_name=self.region_name)
 
 
@@ -26,6 +33,8 @@ class BedrockConfig:
 # https://docs.aws.amazon.com/bedrock/latest/userguide/tool-use-inference-call.html
 # https://docs.aws.amazon.com/bedrock/latest/userguide/tool-use-examples.html
 class BedrockMessageConverter:
+    """Converts messages between OpenAI and AWS Bedrock formats."""
+
     @staticmethod
     def convert_request(
         messages: List[Dict[str, Any]],
@@ -183,10 +192,12 @@ class BedrockMessageConverter:
 
         # Conditionally parse usage data if it exists.
         if usage_data := response.get("usage"):
-            norm_response.usage = BedrockMessageConverter.get_completion_usage(usage_data)
+            norm_response.usage = BedrockMessageConverter.get_completion_usage(
+                usage_data
+            )
 
         return norm_response
-    
+
     @staticmethod
     def get_completion_usage(usage_data: dict):
         """Get the usage statistics from a usage data dictionary."""
@@ -198,6 +209,8 @@ class BedrockMessageConverter:
 
 
 class AwsProvider(Provider):
+    """Provider for AWS Bedrock."""
+
     def __init__(self, **config):
         """Initialize the AWS Bedrock provider with the given configuration."""
         self.config = BedrockConfig(**config)
@@ -267,13 +280,12 @@ class AwsProvider(Provider):
                 modelId=model,
                 messages=formatted_messages,
                 system=system_message,
-                **request_config
+                **request_config,
             )
         except botocore.exceptions.ClientError as e:
             if e.response["Error"]["Code"] == "ValidationException":
                 error_message = e.response["Error"]["Message"]
-                raise LLMError(error_message)
-            else:
-                raise
+                raise LLMError(error_message) from e
+            raise
 
         return self.convert_response(response)

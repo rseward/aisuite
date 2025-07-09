@@ -1,5 +1,12 @@
+"""Base message converter for OpenAI-compliant providers."""
+
 from aisuite.framework import ChatCompletionResponse
-from aisuite.framework.message import Message, ChatCompletionMessageToolCall, CompletionUsage
+from aisuite.framework.message import (
+    Message,
+    ChatCompletionMessageToolCall,
+    CompletionUsage,
+)
+
 
 class OpenAICompliantMessageConverter:
     """
@@ -71,4 +78,3 @@ class OpenAICompliantMessageConverter:
             prompt_tokens_details=usage_data.get("prompt_tokens_details"),
             completion_tokens_details=usage_data.get("completion_tokens_details"),
         )
-
