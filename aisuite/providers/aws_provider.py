@@ -5,7 +5,8 @@ from typing import List, Dict, Any, Tuple, Optional
 import boto3
 from aisuite.provider import Provider, LLMError
 from aisuite.framework import ChatCompletionResponse
-from aisuite.framework.message import Message
+from aisuite.framework.message import Message, CompletionUsage
+from aisuite.utils import utils
 import botocore
 
 
@@ -180,7 +181,20 @@ class BedrockMessageConverter:
         else:
             norm_response.choices[0].finish_reason = stop_reason
 
+        # Conditionally parse usage data if it exists.
+        if usage_data := response.get("usage"):
+            norm_response.usage = BedrockMessageConverter.get_completion_usage(usage_data)
+
         return norm_response
+    
+    @staticmethod
+    def get_completion_usage(usage_data: dict):
+        """Get the usage statistics from a usage data dictionary."""
+        return CompletionUsage(
+            completion_tokens=usage_data.get("outputTokens"),
+            prompt_tokens=usage_data.get("inputTokens"),
+            total_tokens=usage_data.get("totalTokens"),
+        )
 
 
 class AwsProvider(Provider):

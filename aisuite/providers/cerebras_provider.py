@@ -30,11 +30,11 @@ class CerebrasProvider(Provider):
             return self.transformer.convert_response(response.model_dump())
 
         # Re-raise Cerebras API-specific exceptions.
-        except cerebras.cloud.sdk.PermissionDeniedError as e:
+        except cerebras.PermissionDeniedError as e:
             raise
-        except cerebras.cloud.sdk.AuthenticationError as e:
+        except cerebras.AuthenticationError as e:
             raise
-        except cerebras.cloud.sdk.RateLimitError as e:
+        except cerebras.RateLimitError as e:
             raise
 
         # Wrap all other exceptions in LLMError.

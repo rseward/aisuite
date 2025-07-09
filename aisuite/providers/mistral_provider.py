@@ -17,14 +17,11 @@ class MistralMessageConverter(OpenAICompliantMessageConverter):
     Mistral-specific message converter
     """
 
-    @staticmethod
-    def convert_response(response_data) -> ChatCompletionResponse:
+    def convert_response(self, response_data) -> ChatCompletionResponse:
         """Convert Mistral's response to our standard format."""
         # Convert Mistral's response object to dict format
         response_dict = response_data.model_dump()
-        return super(MistralMessageConverter, MistralMessageConverter).convert_response(
-            response_dict
-        )
+        return super().convert_response(response_dict)
 
 
 # Function calling is available for the following models:

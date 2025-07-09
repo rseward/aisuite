@@ -1,6 +1,7 @@
 import openai
 import os
 from aisuite.provider import Provider, LLMError
+from aisuite.providers.message_converter import OpenAICompliantMessageConverter
 
 
 class DeepseekProvider(Provider):
@@ -23,13 +24,19 @@ class DeepseekProvider(Provider):
 
         # Pass the entire config to the OpenAI client constructor
         self.client = openai.OpenAI(**config)
+        # Using OpenAICompliantMessageConverter since DeepSeek's response format is same as OpenAI's.
+        self.transformer = OpenAICompliantMessageConverter()
 
     def chat_completions_create(self, model, messages, **kwargs):
         # Any exception raised by OpenAI will be returned to the caller.
         # Maybe we should catch them and raise a custom LLMError.
-        response = self.client.chat.completions.create(
-            model=model,
-            messages=messages,
-            **kwargs  # Pass any additional arguments to the OpenAI API
-        )
-        return response
+        try:
+            response = self.client.chat.completions.create(
+                model=model,
+                messages=messages,
+                **kwargs  # Pass any additional arguments to the OpenAI API
+            )
+            
+            return self.transformer.convert_response(response.model_dump())
+        except Exception as e:
+            raise LLMError(f"An error occurred: {e}")
