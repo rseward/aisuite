@@ -19,9 +19,11 @@ class OllamaProvider(Provider):
         """
         Initialize the Ollama provider with the given configuration.
         """
+        print(f"config: {config.get('api_url')=}, {os.getenv('OLLAMA_API_URL')=} ")
         self.url = config.get("api_url") or os.getenv(
             "OLLAMA_API_URL", "http://localhost:11434"
         )
+        print(f"{self.url=}")
 
         # Optionally set a custom timeout (default to 30s)
         self.timeout = config.get("timeout", 30)

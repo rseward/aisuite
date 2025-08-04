@@ -19,6 +19,10 @@ class Provider(ABC):
         pass
 
 
+provider_class_map = {
+    "GooglegenaiProvider": "GoogleGenaiProvider",
+}
+
 class ProviderFactory:
     """Factory to dynamically load provider instances based on naming conventions."""
 
@@ -30,6 +34,8 @@ class ProviderFactory:
         # Convert provider_key to the expected module and class names
         provider_class_name = f"{provider_key.capitalize()}Provider"
         provider_module_name = f"{provider_key}_provider"
+        # Translate any anomalies provider class names
+        provider_class_name = provider_class_map.get(provider_class_name, provider_class_name)
 
         module_path = f"aisuite.providers.{provider_module_name}"
 

@@ -218,6 +218,8 @@ class Completions:
         # Initialize provider if not already initialized
         if provider_key not in self.client.providers:
             config = self.client.provider_configs.get(provider_key, {})
+            if kwargs.get("base_url"):
+                config["base_url"] = kwargs["base_url"]
             self.client.providers[provider_key] = ProviderFactory.create_provider(
                 provider_key, config
             )
@@ -229,6 +231,7 @@ class Completions:
         # Extract tool-related parameters
         max_turns = kwargs.pop("max_turns", None)
         tools = kwargs.get("tools", None)
+        kwargs.pop("base_url", None)
 
         # Check environment variable before allowing multi-turn tool execution
         if max_turns is not None and tools is not None:
